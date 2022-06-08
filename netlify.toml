@@ -1,0 +1,3 @@
+[build]
+ publish = "dist/apa-health-check"
+ command = "ng build --prod"
