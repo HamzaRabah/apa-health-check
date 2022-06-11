@@ -3,7 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  stsAuthority: 'https://identity.apaleo.com/',
+  clientId: 'JLDL-AC-APALEO_HEALTH_CHECK',
+  clientRoot: 'http://localhost:4200/',
+  clientScope: 'offline_access, accounting.read, availability.read, companies.read, folios.read, integration:ui-integrations.manage, invoices.read, maintenances.read, offer-index.read, offers.read, openid, profile, rateplans.read-corporate, rateplans.read-negotiated, rates.read, reports.read, reservations.read, routings.read, setup.read',
+  apiRoot: 'https://api.apaleo.com/'
 };
 
 /*
