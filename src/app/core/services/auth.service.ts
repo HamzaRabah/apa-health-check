@@ -1,40 +1,82 @@
 import {Injectable} from '@angular/core';
-import {UserManager} from "oidc-client-ts";
-import {environment} from "../../../environments/environment";
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  userManager: UserManager;
+  private readonly _authObjectKey = 'auth_result';
+  private _renewTokenHandlerId: number = Number.NaN;
 
   constructor() {
-    const settings = {
-      authority: environment.stsAuthority,
-      client_id: environment.clientId,
-      redirect_uri: `${environment.clientRoot}signin-callback`,
-      silent_redirect_uri: `${environment.clientRoot}silent-callback.html`,
-      post_logout_redirect_uri: `${environment.clientRoot}`,
-      response_type: 'code',
-      scope: environment.clientScope
-    };
-    this.userManager = new UserManager(settings);
+    this._attachRenewTokenListener();
   }
 
-  public getUser() {
-    return this.userManager.getUser();
+  private static _removeHash() {
+    const {history, location} = window
+    document.location.hash = ''
+    history.pushState("", document.title, `${location.pathname}${location.search}`)
   }
 
-  public login() {
-    return this.userManager.signinRedirect();
+  public isAuthenticated() {
+    return !!sessionStorage.getItem(this._authObjectKey);
   }
 
-  public renewToken() {
-    return this.userManager.signinSilent();
+  public login(redirectUrl = window.location.pathname) {
+    const state = this._generateCsrfToken();
+    const {location, localStorage} = window
+    /* Set csrf token */
+    localStorage.setItem(state, 'true')
+    /* Do redirect */
+    const redirectTo = `${location.origin}/signin-callback?redirectTo=${redirectUrl}`
+    window.location.href = `/.netlify/functions/auth?url=${redirectTo}&csrf=${state}`
   }
 
-  public logout() {
-    return this.userManager.signoutRedirect();
+  public handleAuthCallback() {
+    const response = this._parseHash(window.location.hash);
+    /* Clear hash */
+    AuthService._removeHash();
+
+    if (response.token && !localStorage.getItem(response.csrf)) {
+      console.error('Token invalid. Please try to login again');
+      return
+    }
+
+    /* Clean up csrfToken */
+    localStorage.removeItem(response.csrf);
+    sessionStorage.setItem(this._authObjectKey, JSON.stringify(response));
+    this._attachRenewTokenListener();
+  }
+
+  private _getAuthObject() {
+    return JSON.parse(sessionStorage.getItem(this._authObjectKey) ?? '');
+  }
+
+  private _attachRenewTokenListener() {
+    if (!this.isAuthenticated())
+      return;
+    if (!Number.isNaN(this._renewTokenHandlerId))
+      clearTimeout(this._renewTokenHandlerId);
+    const authObject = this._getAuthObject();
+    this._renewTokenHandlerId = setTimeout((authService: this) => {
+      authService.login();
+    }, (authObject.expiresIn - 300) * 1000, this);
+  }
+
+  private _generateCsrfToken() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8); // eslint-disable-line
+      return v.toString(16)
+    })
+  }
+
+  private _parseHash(hash: string) {
+    if (!hash) return {}
+    return hash.replace(/^#/, '').split('&').reduce((result: any, pair: any) => {
+      const keyValue = pair.split('=')
+      result[keyValue[0]] = decodeURIComponent(keyValue[1]).replace(/\+/g, ' ')
+      return result
+    }, {})
   }
 }

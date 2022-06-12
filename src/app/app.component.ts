@@ -1,22 +1,17 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from "./core/services/auth.service";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+  selector: 'app-root', templateUrl: './app.component.html', styleUrls: ['./app.component.sass']
 })
-export class AppComponent {
-  title = 'apa-health-check';
+export class AppComponent implements OnInit {
+  title = 'apaleo Health Check';
 
-  constructor(private authService: AuthService) {
+  constructor(public authService: AuthService) {
+
   }
 
-  async onLogin() {
-    await this.authService.login();
-  }
-
-  async onLogout() {
-    await this.authService.logout();
+  ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) this.authService.login();
   }
 }

@@ -1,3 +1,12 @@
 [build]
  publish = "dist/apa-health-check"
  command = "ng build -c production"
+
+[functions]
+ directory = "netlify/functions/"
+
+
+[template.environment]
+# Environment variables needed
+HEALTH_CHECK_CLIENT_ID = "Your apaleo health check client id"
+HEALTH_CHECK_CLIENT_SECRET = "Your apaleo health check client secret"
