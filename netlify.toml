@@ -10,3 +10,9 @@
 # Environment variables needed
 HEALTH_CHECK_CLIENT_ID = "Your apaleo health check client id"
 HEALTH_CHECK_CLIENT_SECRET = "Your apaleo health check client secret"
+
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
