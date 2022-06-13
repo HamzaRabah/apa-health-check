@@ -1,0 +1,40 @@
+@use '@angular/material' as mat;
+@import "variables";
+
+
+
+$primary-palette: (
+  100: $primary-color-light,
+  500: $primary-color,
+  700: $primary-color-dark,
+  contrast: (
+    500: $primary-text-color
+  )
+);
+$secondary-palette: (
+  100: $secondary-color-light,
+  500: $secondary-color,
+  700: $secondary-color-dark,
+  contrast: (
+    500: $secondary-text-color
+  )
+);
+
+
+$my-app-primary: mat.define-palette($primary-palette);
+$my-app-accent: mat.define-palette($secondary-palette);
+$my-app-typography: mat.define-typography-config($font-family: 'Inter, Roboto, "Helvetica Neue", sans-serif');
+
+@include mat.core($my-app-typography);
+
+
+$my-app-theme: mat.define-light-theme(
+    (
+      color: (
+        primary: $my-app-primary,
+        accent: $my-app-accent
+      ),
+      typography: $my-app-typography
+    )
+);
+

@@ -4,11 +4,13 @@ import {BrowserModule} from '@angular/platform-browser';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {CoreModule} from "./core/core.module";
-import { SigninCallbackComponent } from './auth/signin-callback/signin-callback.component';
+import {SigninCallbackComponent} from './auth/signin-callback/signin-callback.component';
+import {SharedModule} from "./shared/shared.module";
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
-  declarations: [AppComponent, SigninCallbackComponent],
-  imports: [BrowserModule, AppRoutingModule, CoreModule],
+  declarations: [AppComponent, SigninCallbackComponent, HomeComponent],
+  imports: [BrowserModule, AppRoutingModule, CoreModule, SharedModule],
   providers: [],
   bootstrap: [AppComponent]
 })
