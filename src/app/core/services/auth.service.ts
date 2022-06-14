@@ -1,4 +1,6 @@
 import {Injectable} from '@angular/core';
+import {Configuration} from "../../../../apaleo-client";
+import {environment} from "../../../environments/environment";
 
 
 @Injectable({
@@ -6,11 +8,18 @@ import {Injectable} from '@angular/core';
 })
 export class AuthService {
 
-  private readonly _authObjectKey = 'auth_result';
+  private static readonly _authObjectKey = 'auth_result';
   private _renewTokenHandlerId: number = Number.NaN;
 
   constructor() {
     this._attachRenewTokenListener();
+  }
+
+  public static GetApiConfiguration() {
+    return new Configuration({
+      accessToken: AuthService._getAccessToken,
+      basePath: environment.ApaleoCoreAPI
+    });
   }
 
   private static _removeHash() {
@@ -19,8 +28,14 @@ export class AuthService {
     history.pushState("", document.title, `${location.pathname}${location.search}`)
   }
 
+  private static _getAccessToken(): string {
+    const authObject = sessionStorage.getItem(AuthService._authObjectKey);
+    if (!authObject) return '';
+    return atob(JSON.parse(authObject ?? '').token)
+  }
+
   public isAuthenticated() {
-    return !!sessionStorage.getItem(this._authObjectKey);
+    return !!sessionStorage.getItem(AuthService._authObjectKey);
   }
 
   public login(redirectUrl = window.location.pathname) {
@@ -45,12 +60,12 @@ export class AuthService {
 
     /* Clean up csrfToken */
     localStorage.removeItem(response.csrf);
-    sessionStorage.setItem(this._authObjectKey, JSON.stringify(response));
+    sessionStorage.setItem(AuthService._authObjectKey, JSON.stringify(response));
     this._attachRenewTokenListener();
   }
 
   private _getAuthObject() {
-    return JSON.parse(sessionStorage.getItem(this._authObjectKey) ?? '');
+    return JSON.parse(sessionStorage.getItem(AuthService._authObjectKey) ?? '');
   }
 
   private _attachRenewTokenListener() {

@@ -7,10 +7,13 @@ import {CoreModule} from "./core/core.module";
 import {SigninCallbackComponent} from './auth/signin-callback/signin-callback.component';
 import {SharedModule} from "./shared/shared.module";
 import { HomeComponent } from './home/home.component';
+import {ApiModule} from "../../apaleo-client";
+import {AuthService} from "./core/services/auth.service";
 
 @NgModule({
   declarations: [AppComponent, SigninCallbackComponent, HomeComponent],
-  imports: [BrowserModule, AppRoutingModule, CoreModule, SharedModule],
+  imports: [BrowserModule, AppRoutingModule, CoreModule, SharedModule,
+    ApiModule.forRoot(AuthService.GetApiConfiguration)],
   providers: [],
   bootstrap: [AppComponent]
 })
