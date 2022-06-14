@@ -24,8 +24,9 @@ export const handler: Handler = async (event, context) => {
     });
     const authResult = authInstance.createToken(result);
     const token = authResult.token['token']["access_token"];
-    const expiresIn = authResult.token['token']["expires_in"]
-    const URI = `${state["url"]}#csrf=${state["csrf"]}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}`
+    const expiresIn = authResult.token['token']["expires_in"];
+    const expiresAt = authResult.token['token']["expires_at"];
+    const URI = `${state["url"]}#csrf=${state["csrf"]}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}&expiresAt=${expiresAt.toUTCString()}`
     return {
       statusCode: 302, headers: {
         Location: URI, 'Cache-Control': 'no-cache'

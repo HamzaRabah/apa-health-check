@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Configuration} from "../../../../apaleo-client";
 import {environment} from "../../../environments/environment";
+import * as moment from 'moment';
 
 
 @Injectable({
@@ -65,7 +66,8 @@ export class AuthService {
   }
 
   private _getAuthObject() {
-    return JSON.parse(sessionStorage.getItem(AuthService._authObjectKey) ?? '');
+    const authObject = sessionStorage.getItem(AuthService._authObjectKey);
+    return authObject ? JSON.parse(authObject) : {};
   }
 
   private _attachRenewTokenListener() {
@@ -74,9 +76,10 @@ export class AuthService {
     if (!Number.isNaN(this._renewTokenHandlerId))
       clearTimeout(this._renewTokenHandlerId);
     const authObject = this._getAuthObject();
+    const expiresInSeconds = moment(authObject.expiresAt).utc().diff(moment().utc(),"seconds");
     this._renewTokenHandlerId = setTimeout((authService: this) => {
       authService.login();
-    }, (authObject.expiresIn - 300) * 1000, this);
+    }, (expiresInSeconds - 300) * 1000, this);
   }
 
   private _generateCsrfToken() {
