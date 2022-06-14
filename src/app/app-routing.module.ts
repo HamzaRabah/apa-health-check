@@ -7,7 +7,8 @@ const routes: Routes = [{
   path: 'signin-callback', component: SigninCallbackComponent
 }, {
   path: '', component: HomeComponent
-}];
+},
+  { path: 'account', loadChildren: () => import('./account-health/account-health.module').then(m => m.AccountHealthModule) }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)], exports: [RouterModule]

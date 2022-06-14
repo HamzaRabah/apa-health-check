@@ -1,0 +1,28 @@
+@import "variables";
+
+h2, h3, h5 {
+  margin: 0 10px;
+}
+
+mat-icon {
+  color: $warning;
+}
+
+
+.root {
+  display: flex;
+  align-items: center
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.warning-value {
+  color: $red;
+}
+
+.valid-value {
+  color: $green;
+}
