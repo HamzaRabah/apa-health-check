@@ -2,6 +2,8 @@ import {Injectable} from '@angular/core';
 import {Configuration} from "../../../../apaleo-client";
 import {environment} from "../../../environments/environment";
 import * as moment from 'moment';
+import {CreateUiIntegrationModel, UiIntegrationsService} from "../../../../apaleo-integration-client";
+import {isDevMode} from '@angular/core';
 
 
 @Injectable({
@@ -11,15 +13,21 @@ export class AuthService {
 
   private static readonly _authObjectKey = 'auth_result';
   private _renewTokenHandlerId: number = Number.NaN;
+  private readonly _accountPageURL = `${location.origin}/account`;
 
-  constructor() {
+  constructor(private _uiIntegrationsService: UiIntegrationsService) {
     this._attachRenewTokenListener();
   }
 
   public static GetApiConfiguration() {
     return new Configuration({
-      accessToken: AuthService._getAccessToken,
-      basePath: environment.ApaleoCoreAPI
+      accessToken: AuthService._getAccessToken, basePath: environment.ApaleoCoreAPI
+    });
+  }
+
+  public static GetApiIntegrationConfiguration() {
+    return new Configuration({
+      accessToken: AuthService._getAccessToken, basePath: environment.ApaleoIntegrationAPI
     });
   }
 
@@ -45,7 +53,7 @@ export class AuthService {
 
   public handleAuthCallback() {
     const response = this._parseHash(window.location.hash);
-    if(!('token' in response)){
+    if (!('token' in response)) {
       return;
     }
     if (response.token && !localStorage.getItem(response.csrf)) {
@@ -56,7 +64,24 @@ export class AuthService {
     /* Clean up csrfToken */
     localStorage.removeItem(response.csrf);
     sessionStorage.setItem(AuthService._authObjectKey, JSON.stringify(response));
+    this._handleApaleoOneIntegration();
     this._attachRenewTokenListener();
+  }
+
+  private _handleApaleoOneIntegration() {
+    if (isDevMode()) return;
+    this._uiIntegrationsService.integrationUiIntegrationsGet("response").subscribe(result => {
+      const accountPageIntegration = result?.body?.uiIntegrations?.find(i => i.sourceUrl === this._accountPageURL);
+      if (accountPageIntegration) {
+        return;
+      }
+      const integrationAccountPagePayload: CreateUiIntegrationModel = {
+        label: 'apa Health Check', sourceUrl: this._accountPageURL, sourceType: "Public"
+      };
+      this._uiIntegrationsService.integrationUiIntegrationsByTargetPost("AccountMenuApps", integrationAccountPagePayload).subscribe(result => {
+        console.log(result);
+      })
+    })
   }
 
   private _getAuthObject() {
@@ -65,12 +90,10 @@ export class AuthService {
   }
 
   private _attachRenewTokenListener() {
-    if (!this.isAuthenticated())
-      return;
-    if (!Number.isNaN(this._renewTokenHandlerId))
-      clearTimeout(this._renewTokenHandlerId);
+    if (!this.isAuthenticated()) return;
+    if (!Number.isNaN(this._renewTokenHandlerId)) clearTimeout(this._renewTokenHandlerId);
     const authObject = this._getAuthObject();
-    const expiresInSeconds = moment(authObject.expiresAt).utc().diff(moment().utc(),"seconds");
+    const expiresInSeconds = moment(authObject.expiresAt).utc().diff(moment().utc(), "seconds");
     this._renewTokenHandlerId = setTimeout((authService: this) => {
       authService.login();
     }, (expiresInSeconds - 300) * 1000, this);

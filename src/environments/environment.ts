@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  ApaleoCoreAPI: 'https://api.apaleo.com'
+  ApaleoCoreAPI: 'https://api.apaleo.com',
+  ApaleoIntegrationAPI: 'https://integration.apaleo.com',
 };
 
 /*
