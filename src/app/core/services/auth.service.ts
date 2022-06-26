@@ -23,12 +23,6 @@ export class AuthService {
     });
   }
 
-  private static _removeHash() {
-    const {history, location} = window
-    document.location.hash = ''
-    history.pushState("", document.title, `${location.pathname}${location.search}`)
-  }
-
   private static _getAccessToken(): string {
     const authObject = sessionStorage.getItem(AuthService._authObjectKey);
     if (!authObject) return '';
@@ -51,12 +45,12 @@ export class AuthService {
 
   public handleAuthCallback() {
     const response = this._parseHash(window.location.hash);
-    /* Clear hash */
-    AuthService._removeHash();
-
+    if(!('token' in response)){
+      return;
+    }
     if (response.token && !localStorage.getItem(response.csrf)) {
       console.error('Token invalid. Please try to login again');
-      return
+      return;
     }
 
     /* Clean up csrfToken */

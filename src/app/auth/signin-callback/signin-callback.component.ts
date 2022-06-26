@@ -11,10 +11,10 @@ export class SigninCallbackComponent implements OnInit {
 
   constructor(private readonly _router: Router, private readonly _authService: AuthService, private route: ActivatedRoute) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     this._authService.handleAuthCallback();
     const redirectUrl = this.route.snapshot.queryParamMap.get('redirectTo') ?? ''
-    await this._router.navigateByUrl(redirectUrl);
+    this._router.navigateByUrl(redirectUrl);
   }
 
 }
