@@ -76,7 +76,15 @@ export class AuthService {
         return;
       }
       const integrationAccountPagePayload: CreateUiIntegrationModel = {
-        label: 'apa Health Check', sourceUrl: this._accountPageURL, sourceType: "Public"
+        label: 'Health Check',
+        sourceUrl: this._accountPageURL,
+        sourceType: "Public",
+        roles: [
+          "AccountAdmin",
+          "PropertyAdmin",
+          "Accountant",
+          "ReservationManager"
+        ]
       };
       this._uiIntegrationsService.integrationUiIntegrationsByTargetPost("AccountMenuApps", integrationAccountPagePayload).subscribe(result => {
         console.log(result);
