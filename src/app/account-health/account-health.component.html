@@ -11,7 +11,7 @@
   </mat-grid-tile>
   <mat-grid-tile>
     <mat-form-field>
-      <mat-label>Enter a date range</mat-label>
+      <mat-label>Enter a date range (to filter data based on the creation date)</mat-label>
       <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
         <input readonly matStartDate formControlName="start" placeholder="Start date">
         <input readonly matEndDate formControlName="end" placeholder="End date">
@@ -21,49 +21,7 @@
       <mat-date-range-picker #picker></mat-date-range-picker>
     </mat-form-field>
   </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Reservations Warnings" [value]="reservationsWarningsCount">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Checked-Out Reservations With Open balances"
-                          icon="balance"
-                          [value]="reservationsWithOpenBalanceCount">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Services Without Sub-Accounts" [value]="servicesWithoutSubAccountCount" icon="priority_high">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Canceled\NoShow Reservations Without Fees" icon="event_busy"
-                          [value]="servicesWithoutSubAccountCount">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Folios Without PSP"
-                          [value]="foliosWithoutPspCount"
-                          caption="Except 'Other', 'Voucher', 'Lunchcheck', 'Cheque'"
-                          icon="receipt">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Folios With Unusual Payments Methods"
-                          [value]="foliosWithUnusualPaymentsCount"
-                          icon="radar"
-                          caption="'Other', 'Voucher', 'Lunchcheck', 'CreditCard'">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Open Folios"
-                          icon="folder_open"
-                          [value]="foliosOpenCount">
-    </app-statistic-widget>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <app-statistic-widget title="Folios With Manual Charges"
-                          icon="back_hand"
-                          [value]="foliosWithManualChargesCount">
-    </app-statistic-widget>
+  <mat-grid-tile *ngFor="let item of statisticData">
+    <app-statistic-widget [statisticType]="item"></app-statistic-widget>
   </mat-grid-tile>
 </mat-grid-list>

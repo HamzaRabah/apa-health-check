@@ -1,4 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AccountStatisticTypeModel} from "../account-statistic-type.model";
 
 @Component({
   selector: 'app-statistic-widget',
@@ -6,10 +7,10 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./statistic-widget.component.scss']
 })
 export class StatisticWidgetComponent implements OnInit {
-  @Input() title: string = '';
-  @Input() value: number = 0;
-  @Input() icon: string = 'warning';
-  @Input() caption: string = '';
+
+  @Input()
+  statisticType!: AccountStatisticTypeModel;
+  @Output() statisticClicked = new EventEmitter<AccountStatisticTypeModel>();
 
   constructor() {
   }
@@ -17,4 +18,9 @@ export class StatisticWidgetComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  clicked() {
+    if (this.statisticType.value > 0) {
+      this.statisticClicked.emit(this.statisticType);
+    }
+  }
 }

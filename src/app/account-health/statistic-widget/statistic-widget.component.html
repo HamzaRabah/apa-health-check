@@ -1,8 +1,15 @@
-<div class="root">
-  <mat-icon>{{icon}}</mat-icon>
+<div class="root" [matTooltip]="statisticType.description">
+  <mat-icon>{{statisticType.icon}}</mat-icon>
   <div class="text-container">
-    <h3>{{title}}</h3>
-    <h2 [class]="value > 0 ? 'warning-value' : 'valid-value'">{{value}}</h2>
-    <h5 *ngIf="caption">{{caption}}</h5>
+    <div style="display: flex; align-items: center">
+      <h3>{{statisticType.title}}</h3>
+      <a *ngIf="statisticType.helpGuideUrl" mat-button [href]="statisticType.helpGuideUrl" target="_blank">
+        <mat-icon color="accent">help</mat-icon>
+        Help
+      </a>
+    </div>
+    <h2 [class]="statisticType.value > 0 ? 'warning-value' : 'valid-value'"
+        (click)="clicked()">{{statisticType.value}}</h2>
+    <h5 *ngIf="statisticType.caption">{{statisticType.caption}}</h5>
   </div>
 </div>

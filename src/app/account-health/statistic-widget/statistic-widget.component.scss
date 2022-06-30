@@ -11,7 +11,7 @@ mat-icon {
 
 .root {
   display: flex;
-  align-items: center
+  align-items: center;
 }
 
 .text-container {
@@ -21,6 +21,8 @@ mat-icon {
 
 .warning-value {
   color: $red;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .valid-value {
