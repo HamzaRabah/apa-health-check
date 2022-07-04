@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {
+  FeatureSettingsService,
   FolioService,
   PropertyItemModel,
   PropertyService,
@@ -10,6 +11,7 @@ import * as moment from "moment";
 import {MatSelectChange} from "@angular/material/select";
 import {FormControl, FormGroup} from "@angular/forms";
 import {AccountStatisticTypeModel, StatisticType} from "./account-statistic-type.model";
+import {firstValueFrom} from "rxjs";
 
 @Component({
   selector: 'app-account-health',
@@ -28,7 +30,8 @@ export class AccountHealthComponent implements OnInit {
   constructor(private propertyService: PropertyService,
               private reservationService: ReservationService,
               private servicesService: ServiceService,
-              private folioService: FolioService) {
+              private folioService: FolioService,
+              private featureSettingsService: FeatureSettingsService) {
     this.range.valueChanges.subscribe(changes => {
       if (changes.end && changes.start) this.refreshData();
     })
@@ -163,7 +166,7 @@ export class AccountHealthComponent implements OnInit {
     })
   }
 
-  private fillServicesWithoutSubAccount() {
+  private async fillServicesWithoutSubAccount() {
     let statisticItem = this.statisticData.find(i => i.id === StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS);
     if (!statisticItem) {
       statisticItem = new AccountStatisticTypeModel(StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS,
@@ -175,10 +178,34 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
+    if (this.selectedPropertyId) {
+      const subAccountEnabled = await this._isSubAccountsEnabledInProperty(this.selectedPropertyId);
+      if (!subAccountEnabled) {
+        statisticItem.value = 0;
+        return;
+      }
+    }
     this.servicesService
       .rateplanServicesGet(this.selectedPropertyId ? this.selectedPropertyId : undefined, undefined, undefined, undefined, undefined)
-      .subscribe(services => {
-        if (statisticItem) statisticItem.value = services?.services?.filter(s => !s.subAccountId)?.length ?? 0;
+      .subscribe(async servicesResult => {
+        if (statisticItem) {
+          let servicesWithoutSubAccounts = servicesResult?.services?.filter(s => !s.subAccountId) ?? [];
+          if (!this.selectedPropertyId && servicesWithoutSubAccounts.length > 0) {
+            const servicesPropertyIds = new Set(servicesWithoutSubAccounts.map(s => s.property.id));
+            for (const servicesPropertyId of servicesPropertyIds) {
+              const subAccountEnabled = await this._isSubAccountsEnabledInProperty(servicesPropertyId);
+              if (!subAccountEnabled) {
+                servicesWithoutSubAccounts = servicesWithoutSubAccounts.filter(s => s.property.id != servicesPropertyId);
+              }
+            }
+          }
+          statisticItem.value = servicesWithoutSubAccounts.length;
+        }
       })
+  }
+
+  private async _isSubAccountsEnabledInProperty(propertyId: string) {
+    const featureResult = await firstValueFrom(this.featureSettingsService.settingsFeaturesByPropertyIdGet(propertyId));
+    return featureResult.areCustomRevenueSubAccountsEnabled;
   }
 }
