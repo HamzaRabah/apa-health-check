@@ -74,7 +74,8 @@ export class AccountHealthComponent implements OnInit {
         0,
         'These are payments that have not been processed by apaleo but were added directly and manually on the reservation folio.\nThese entries are prone to error when selecting the payment type.',
         'https://apaleo.zendesk.com/hc/en-us/articles/360009884959-How-can-I-ensure-a-proper-daily-accounting-check-',
-        'receipt'
+        'receipt',
+        "Except 'Other', 'Voucher', 'Lunchcheck', 'Cheque'"
       );
       this.statisticData.push(statisticPSPItem);
     }
@@ -96,7 +97,8 @@ export class AccountHealthComponent implements OnInit {
         0,
         'See those reservations to verify that the correct payment method has been selected.',
         '',
-        'radar'
+        'radar',
+        "'Other', 'Voucher', 'Lunchcheck', 'CreditCard'"
       );
       this.statisticData.push(statisticPaymentItem);
     }
