@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {AnalyticsService} from "./shared/services/analytics.service";
 
 @Component({
   selector: 'app-root', templateUrl: './app.component.html', styleUrls: ['./app.component.sass']
@@ -6,11 +7,11 @@ import {Component, OnInit} from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'Health Check';
 
-  constructor() {
+  constructor(private analyticsService: AnalyticsService) {
 
   }
 
   ngOnInit(): void {
-
+    this.analyticsService.initialize();
   }
 }

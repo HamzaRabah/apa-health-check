@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AccountStatisticTypeModel, StatisticType} from "../account-statistic-type.model";
+import {AnalyticsService} from "../../shared/services/analytics.service";
 
 @Component({
   selector: 'app-statistic-widget',
@@ -8,23 +9,23 @@ import {AccountStatisticTypeModel, StatisticType} from "../account-statistic-typ
 })
 export class StatisticWidgetComponent implements OnInit {
 
-  @Input()
-  statisticType!: AccountStatisticTypeModel;
+  @Input() statisticType!: AccountStatisticTypeModel;
   @Output() statisticClicked = new EventEmitter<AccountStatisticTypeModel>();
 
-  constructor() {
+  constructor(public analyticsService: AnalyticsService) {
   }
 
   ngOnInit(): void {
   }
 
-  clicked() {
+  detailsClicked() {
     if (this.statisticType.value > 0) {
+      this.analyticsService.trackEvent(`${StatisticType[this.statisticType.id]}_DETAILS`);
       this.statisticClicked.emit(this.statisticType);
     }
   }
 
-  getAnalyticClass(statisticType: AccountStatisticTypeModel, element: string) {
-    return `umami--click--${StatisticType[statisticType.id]}_${element}`;
+  guideClicked() {
+    this.analyticsService.trackEvent(`${StatisticType[this.statisticType.id]}_GUIDE`);
   }
 }
