@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {AccountStatisticTypeModel} from "../account-statistic-type.model";
+import {AccountStatisticTypeModel, StatisticType} from "../account-statistic-type.model";
 
 @Component({
   selector: 'app-statistic-widget',
@@ -22,5 +22,9 @@ export class StatisticWidgetComponent implements OnInit {
     if (this.statisticType.value > 0) {
       this.statisticClicked.emit(this.statisticType);
     }
+  }
+
+  getAnalyticClass(statisticType: AccountStatisticTypeModel, element: string) {
+    return `umami--click--${StatisticType[statisticType.id]}_${element}`;
   }
 }
