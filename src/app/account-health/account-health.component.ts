@@ -76,7 +76,7 @@ export class AccountHealthComponent implements OnInit {
     this.fillReservationsWarnings().then();
     this.fillServicesWithoutSubAccount().then();
     this.fillFolioIssues();
-    this.fillReservationsWithoutFees();
+    this.fillReservationsWithoutFees().then();
     this.fillReservationsCheckedOutWithOpenBalance().then();
   }
 
@@ -140,7 +140,7 @@ export class AccountHealthComponent implements OnInit {
     statisticItem.value = await this.accountStatisticsService.getReservationsWithWarningsCount();
   }
 
-  private fillReservationsWithoutFees() {
+  private async fillReservationsWithoutFees() {
     let statisticItem = this.statisticData.find(i => i.id === StatisticType.RESERVATION_CANCELED_WITHOUT_FEE);
     if (!statisticItem) {
       statisticItem = new AccountStatisticTypeModel(StatisticType.RESERVATION_CANCELED_WITHOUT_FEE,
@@ -152,9 +152,7 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, ["Canceled", "NoShow"], "Creation", moment(this.range.get('start')?.value).format(), moment(this.range.get('end')?.value).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"]).subscribe(result => {
-      if (statisticItem) statisticItem.value = result?.count ?? 0;
-    })
+    statisticItem.value = await this.accountStatisticsService.getReservationsWithoutFeeCount();
   }
 
   private async fillReservationsCheckedOutWithOpenBalance() {

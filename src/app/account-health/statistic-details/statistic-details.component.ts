@@ -53,6 +53,7 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
         await this._fillReservationsWithOpenBalanceData();
         break;
       case StatisticType.RESERVATION_CANCELED_WITHOUT_FEE:
+        await this._fillReservationsWithoutFeeData();
         break;
       case StatisticType.FOLIOS_WITH_UNUSUAL_PAYMENTS:
         break;
@@ -115,6 +116,22 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
         property: `${item.property.name} (${item.property.code})`,
         status: item.status,
         warning: item.validationMessages?.map(i => i.message)?.join('<br>') ?? '',
+      };
+    })
+  }
+
+  private async _fillReservationsWithoutFeeData() {
+    this.columns = [
+      {columnDef: "id", header: "Reservation ID"},
+      {columnDef: "property", header: "Property"},
+      {columnDef: "status", header: "Status"},
+    ];
+    const data = await this.accountStatisticsService.getReservationsWithoutFeeData();
+    this.dataSource.data = data.map(item => {
+      return {
+        id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/${item.property.id}/reservations/${item.id}/folio">${item.id}</a>`,
+        property: `${item.property.name} (${item.property.code})`,
+        status: item.status
       };
     })
   }

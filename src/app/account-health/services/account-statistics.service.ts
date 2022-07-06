@@ -41,6 +41,16 @@ export class AccountStatisticsService {
     return result?.count ?? 0;
   }
 
+  async getReservationsWithoutFeeData() {
+    const result = await firstValueFrom(this.reservationService.bookingReservationsGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, ["Canceled", "NoShow"], "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"]));
+    return result?.reservations ?? [];
+  }
+
+  async getReservationsWithoutFeeCount() {
+    const result = await firstValueFrom(this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, ["Canceled", "NoShow"], "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"]));
+    return result?.count ?? 0;
+  }
+
 
   async getServicesWithoutSubAccountsCount() {
     if (this.selectedPropertyId) {
