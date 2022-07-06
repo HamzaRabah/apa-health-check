@@ -5,12 +5,14 @@ import {AccountHealthRoutingModule} from './account-health-routing.module';
 import {AccountHealthComponent} from './account-health.component';
 import {SharedModule} from "../shared/shared.module";
 import { StatisticWidgetComponent } from './statistic-widget/statistic-widget.component';
+import { StatisticDetailsComponent } from './statistic-details/statistic-details.component';
 
 
 @NgModule({
   declarations: [
     AccountHealthComponent,
-    StatisticWidgetComponent
+    StatisticWidgetComponent,
+    StatisticDetailsComponent
   ],
   imports: [
     CommonModule,

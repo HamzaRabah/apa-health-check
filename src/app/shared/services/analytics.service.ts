@@ -13,10 +13,7 @@ export class AnalyticsService {
   }
 
   initialize() {
-    if (isDevMode()) {
-      umami = undefined;
-      return;
-    }
+    if (isDevMode()) return;
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         if (!event.url.includes('signin-callback')) this.trackView(event.url);
@@ -25,10 +22,12 @@ export class AnalyticsService {
   }
 
   trackEvent(event: string, eventType: string = 'click') {
+    if (isDevMode()) return;
     umami?.trackEvent(event, eventType);
   }
 
   trackView(url: string) {
+    if (isDevMode()) return;
     umami?.trackView(url);
   }
 }

@@ -12,6 +12,9 @@ import {MatSelectChange} from "@angular/material/select";
 import {FormControl, FormGroup} from "@angular/forms";
 import {AccountStatisticTypeModel, StatisticType} from "./account-statistic-type.model";
 import {firstValueFrom} from "rxjs";
+import {MatDialog} from "@angular/material/dialog";
+import {StatisticDetailsComponent} from "./statistic-details/statistic-details.component";
+import {AccountStatisticsService} from "./services/account-statistics.service";
 
 @Component({
   selector: 'app-account-health',
@@ -31,7 +34,9 @@ export class AccountHealthComponent implements OnInit {
               private reservationService: ReservationService,
               private servicesService: ServiceService,
               private folioService: FolioService,
-              private featureSettingsService: FeatureSettingsService) {
+              private featureSettingsService: FeatureSettingsService,
+              private matDialog: MatDialog,
+              private accountStatisticsService: AccountStatisticsService) {
     this.range.valueChanges.subscribe(changes => {
       if (changes.end && changes.start) this.refreshData();
     })
@@ -58,9 +63,18 @@ export class AccountHealthComponent implements OnInit {
     this.refreshData();
   }
 
+  onStatisticClicked(item: AccountStatisticTypeModel) {
+    this.matDialog.open(StatisticDetailsComponent, {
+      data: item
+    });
+  }
+
   private refreshData() {
+    this.accountStatisticsService.selectedPropertyId = this.selectedPropertyId;
+    this.accountStatisticsService.startDate = this.startDate;
+    this.accountStatisticsService.endDate = this.endDate;
     this.fillReservationsWarnings()
-    this.fillServicesWithoutSubAccount();
+    this.fillServicesWithoutSubAccount().then();
     this.fillFolioIssues();
     this.fillReservationsWithoutFees();
     this.fillReservationsCheckedOutWithOpenBalance();
@@ -171,43 +185,9 @@ export class AccountHealthComponent implements OnInit {
   private async fillServicesWithoutSubAccount() {
     let statisticItem = this.statisticData.find(i => i.id === StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS);
     if (!statisticItem) {
-      statisticItem = new AccountStatisticTypeModel(StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS,
-        'Services Without Sub-Accounts',
-        0,
-        'The services listed have no financial sub-account allocated, hence the revenues will end up in a high-level collective revenue account and reporting on this service is difficult.',
-        'https://apaleo.zendesk.com/hc/en-us/articles/360019336180-Sub-',
-        'priority_high'
-      );
+      statisticItem = new AccountStatisticTypeModel(StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS, 'Services Without Sub-Accounts', 0, 'The services listed have no financial sub-account allocated, hence the revenues will end up in a high-level collective revenue account and reporting on this service is difficult.', 'https://apaleo.zendesk.com/hc/en-us/articles/360019336180-Sub-', 'priority_high');
       this.statisticData.push(statisticItem);
     }
-    if (this.selectedPropertyId) {
-      const subAccountEnabled = await this._isSubAccountsEnabledInProperty(this.selectedPropertyId);
-      if (!subAccountEnabled) {
-        statisticItem.value = 0;
-        return;
-      }
-    }
-    this.servicesService
-      .rateplanServicesGet(this.selectedPropertyId ? this.selectedPropertyId : undefined, undefined, undefined, undefined, undefined)
-      .subscribe(async servicesResult => {
-        if (statisticItem) {
-          let servicesWithoutSubAccounts = servicesResult?.services?.filter(s => !s.subAccountId) ?? [];
-          if (!this.selectedPropertyId && servicesWithoutSubAccounts.length > 0) {
-            const servicesPropertyIds = new Set(servicesWithoutSubAccounts.map(s => s.property.id));
-            for (const servicesPropertyId of servicesPropertyIds) {
-              const subAccountEnabled = await this._isSubAccountsEnabledInProperty(servicesPropertyId);
-              if (!subAccountEnabled) {
-                servicesWithoutSubAccounts = servicesWithoutSubAccounts.filter(s => s.property.id != servicesPropertyId);
-              }
-            }
-          }
-          statisticItem.value = servicesWithoutSubAccounts.length;
-        }
-      })
-  }
-
-  private async _isSubAccountsEnabledInProperty(propertyId: string) {
-    const featureResult = await firstValueFrom(this.featureSettingsService.settingsFeaturesByPropertyIdGet(propertyId));
-    return featureResult.areCustomRevenueSubAccountsEnabled;
+    statisticItem.value = await this.accountStatisticsService.getServicesWithoutSubAccountsCount();
   }
 }

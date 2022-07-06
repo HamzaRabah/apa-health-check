@@ -22,6 +22,6 @@
     </mat-form-field>
   </mat-grid-tile>
   <mat-grid-tile *ngFor="let item of statisticData">
-    <app-statistic-widget [statisticType]="item"></app-statistic-widget>
+    <app-statistic-widget [statisticType]="item" (statisticClicked)="onStatisticClicked($event)"></app-statistic-widget>
   </mat-grid-tile>
 </mat-grid-list>

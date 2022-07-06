@@ -9,6 +9,11 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {ReactiveFormsModule} from "@angular/forms";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatTableModule} from "@angular/material/table";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSortModule} from "@angular/material/sort";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 
 @NgModule({
@@ -22,6 +27,11 @@ import {MatTooltipModule} from "@angular/material/tooltip";
     MatNativeDateModule,
     MatTooltipModule,
     MatButtonModule,
+    MatDialogModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
   ],
   exports: [
@@ -32,6 +42,11 @@ import {MatTooltipModule} from "@angular/material/tooltip";
     MatNativeDateModule,
     MatTooltipModule,
     MatButtonModule,
+    MatDialogModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
   ]
 })

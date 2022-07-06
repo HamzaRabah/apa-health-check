@@ -1,0 +1,19 @@
+@import "variables";
+
+mat-icon {
+  color: $primary-color;
+}
+
+h1 {
+  color: $primary-color;
+  margin: 0 10px;
+}
+
+.root {
+  display: flex;
+  align-items: center;
+}
+
+mat-spinner {
+  margin: auto;
+}
