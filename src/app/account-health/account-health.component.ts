@@ -77,7 +77,7 @@ export class AccountHealthComponent implements OnInit {
     this.fillServicesWithoutSubAccount().then();
     this.fillFolioIssues();
     this.fillReservationsWithoutFees();
-    this.fillReservationsCheckedOutWithOpenBalance();
+    this.fillReservationsCheckedOutWithOpenBalance().then();
   }
 
   private fillFolioIssues() {
@@ -159,7 +159,7 @@ export class AccountHealthComponent implements OnInit {
     })
   }
 
-  private fillReservationsCheckedOutWithOpenBalance() {
+  private async fillReservationsCheckedOutWithOpenBalance() {
     let statisticItem = this.statisticData.find(i => i.id === StatisticType.RESERVATION_CHECKED_OUT_OPEN_BALANCE);
     if (!statisticItem) {
       statisticItem = new AccountStatisticTypeModel(StatisticType.RESERVATION_CHECKED_OUT_OPEN_BALANCE,
@@ -171,9 +171,7 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    this.reservationService.bookingReservationsGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.range.get('start')?.value).format(), moment(this.range.get('end')?.value).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"], undefined, undefined, undefined).subscribe(result => {
-      if (statisticItem) statisticItem.value = result?.reservations?.filter(r => moment(r.checkOutTime).isBefore(this.endDate))?.length ?? 0;
-    })
+    statisticItem.value = await this.accountStatisticsService.getReservationsWithOpenBalanceCount();
   }
 
   private fillProperties() {

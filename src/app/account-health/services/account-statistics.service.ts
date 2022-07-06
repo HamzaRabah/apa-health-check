@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
-import {FeatureSettingsService, ServiceService} from "../../../../apaleo-client";
-import {firstValueFrom} from "rxjs";
+import {FeatureSettingsService, ReservationService, ServiceService} from "../../../../apaleo-client";
+import {firstValueFrom, retry} from "rxjs";
+import * as moment from "moment";
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,25 @@ export class AccountStatisticsService {
   endDate: string = '';
 
   constructor(private servicesService: ServiceService,
-              private featureSettingsService: FeatureSettingsService) {
+              private featureSettingsService: FeatureSettingsService,
+              private reservationService: ReservationService) {
   }
+
+  private get selectedPropertiesIds() {
+    return this.selectedPropertyId ? [this.selectedPropertyId] : undefined;
+  }
+
+  async getReservationsWithOpenBalanceData() {
+    const result = await firstValueFrom(this.reservationService.bookingReservationsGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"], undefined, undefined, undefined));
+    return result?.reservations?.filter(r => moment(r.checkOutTime).isBefore(this.endDate)) ?? [];
+  }
+
+
+  async getReservationsWithOpenBalanceCount() {
+    const result = await this.getReservationsWithOpenBalanceData();
+    return result.length;
+  }
+
 
   async getServicesWithoutSubAccountsCount() {
     if (this.selectedPropertyId) {
