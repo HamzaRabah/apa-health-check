@@ -31,6 +31,16 @@ export class AccountStatisticsService {
     return result.length;
   }
 
+  async getReservationsWithWarningsData() {
+    const result = await firstValueFrom(this.reservationService.bookingReservationsGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, ["OfferNotAvailable", "AutoUnitAssignment"]));
+    return result?.reservations ?? [];
+  }
+
+  async getReservationsWithWarningsCount() {
+    const result = await firstValueFrom(this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, ["OfferNotAvailable", "AutoUnitAssignment"]));
+    return result?.count ?? 0;
+  }
+
 
   async getServicesWithoutSubAccountsCount() {
     if (this.selectedPropertyId) {

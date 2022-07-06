@@ -73,7 +73,7 @@ export class AccountHealthComponent implements OnInit {
     this.accountStatisticsService.selectedPropertyId = this.selectedPropertyId;
     this.accountStatisticsService.startDate = this.startDate;
     this.accountStatisticsService.endDate = this.endDate;
-    this.fillReservationsWarnings()
+    this.fillReservationsWarnings().then();
     this.fillServicesWithoutSubAccount().then();
     this.fillFolioIssues();
     this.fillReservationsWithoutFees();
@@ -125,7 +125,7 @@ export class AccountHealthComponent implements OnInit {
   }
 
 
-  private fillReservationsWarnings() {
+  private async fillReservationsWarnings() {
     let statisticItem = this.statisticData.find(i => i.id === StatisticType.RESERVATION_WARNINGS);
     if (!statisticItem) {
       statisticItem = new AccountStatisticTypeModel(StatisticType.RESERVATION_WARNINGS,
@@ -137,9 +137,7 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.range.get('start')?.value).format(), moment(this.range.get('end')?.value).format(), undefined, undefined, ["OfferNotAvailable", "AutoUnitAssignment"]).subscribe(result => {
-      if (statisticItem) statisticItem.value = result?.count ?? 0;
-    })
+    statisticItem.value = await this.accountStatisticsService.getReservationsWithWarningsCount();
   }
 
   private fillReservationsWithoutFees() {

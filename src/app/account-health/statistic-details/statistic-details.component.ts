@@ -42,6 +42,7 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
   private async _fillData() {
     switch (this.item.id) {
       case StatisticType.RESERVATION_WARNINGS:
+        await this._fillReservationsWarningsData();
         break;
       case StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS:
         await this._fillServicesWithoutSubAccountsData();
@@ -49,7 +50,7 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
       case StatisticType.FOLIOS_WITHOUT_PSP:
         break;
       case StatisticType.RESERVATION_CHECKED_OUT_OPEN_BALANCE:
-        await this._fillReservationsWithOpenBalance();
+        await this._fillReservationsWithOpenBalanceData();
         break;
       case StatisticType.RESERVATION_CANCELED_WITHOUT_FEE:
         break;
@@ -75,7 +76,8 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
       };
     })
   }
-  private async _fillReservationsWithOpenBalance() {
+
+  private async _fillReservationsWithOpenBalanceData() {
     this.columns = [
       {columnDef: "id", header: "Reservation ID"},
       {columnDef: "property", header: "Property"},
@@ -95,6 +97,24 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
           currency: item.balance.currency,
           maximumFractionDigits: 0
         }),
+      };
+    })
+  }
+
+  private async _fillReservationsWarningsData() {
+    this.columns = [
+      {columnDef: "id", header: "Reservation ID"},
+      {columnDef: "property", header: "Property"},
+      {columnDef: "status", header: "Status"},
+      {columnDef: "warning", header: "Warning"},
+    ];
+    const data = await this.accountStatisticsService.getReservationsWithWarningsData();
+    this.dataSource.data = data.map(item => {
+      return {
+        id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/${item.property.id}/reservations/${item.id}">${item.id}</a>`,
+        property: `${item.property.name} (${item.property.code})`,
+        status: item.status,
+        warning: item.validationMessages?.map(i => i.message)?.join('<br>') ?? '',
       };
     })
   }
