@@ -116,12 +116,15 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticPaymentItem);
     }
-    this.folioService.financeFoliosGet(this.selectedPropertiesIds, undefined, undefined, undefined, false, undefined, undefined, undefined, this.startDate, this.endDate, undefined, undefined, undefined, undefined, undefined, undefined, ["payments", "charges"])
-      .subscribe(result => {
-        if (statisticPSPItem) statisticPSPItem.value = result?.folios?.filter(item => item.reservation && item.payments && item.payments.filter(pay => !pay.externalReference?.pspReference && !['Other', 'Voucher', 'Lunchcheck', 'Cheque'].includes(pay.method)))?.length ?? 0;
-        if (statisticChargesItem) statisticChargesItem.value = result?.folios?.filter(item => item.charges && item.charges.some(charge => !charge.translatedNames))?.length ?? 0;
-        if (statisticPaymentItem) statisticPaymentItem.value = result?.folios?.filter(item => item.payments && item.payments.some(pay => ['Other', 'Voucher', 'Lunchcheck', 'CreditCard'].includes(pay.method)))?.length ?? 0;
-      })
+    this.accountStatisticsService.getFoliosWithoutPSPCount().then(value => {
+      if (statisticPSPItem) statisticPSPItem.value = value;
+    });
+    this.accountStatisticsService.getFoliosWithManualChargesCount().then(value => {
+      if (statisticChargesItem) statisticChargesItem.value = value;
+    });
+    this.accountStatisticsService.getFoliosWithUnusualPaymentsCount().then(value => {
+      if (statisticPaymentItem) statisticPaymentItem.value = value;
+    });
   }
 
 

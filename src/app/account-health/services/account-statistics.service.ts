@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {FeatureSettingsService, ReservationService, ServiceService} from "../../../../apaleo-client";
+import {FeatureSettingsService, FolioService, ReservationService, ServiceService} from "../../../../apaleo-client";
 import {firstValueFrom, retry} from "rxjs";
 import * as moment from "moment";
 
@@ -13,7 +13,8 @@ export class AccountStatisticsService {
 
   constructor(private servicesService: ServiceService,
               private featureSettingsService: FeatureSettingsService,
-              private reservationService: ReservationService) {
+              private reservationService: ReservationService,
+              private folioService: FolioService) {
   }
 
   private get selectedPropertiesIds() {
@@ -49,6 +50,36 @@ export class AccountStatisticsService {
   async getReservationsWithoutFeeCount() {
     const result = await firstValueFrom(this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, ["Canceled", "NoShow"], "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"]));
     return result?.count ?? 0;
+  }
+
+  async getFoliosWithoutPSPCount() {
+    const result = await this.getFoliosWithoutPSPData();
+    return result.length;
+  }
+
+  async getFoliosWithoutPSPData() {
+    const result = await firstValueFrom(this.folioService.financeFoliosGet(this.selectedPropertiesIds, undefined, undefined, undefined, false, undefined, undefined, undefined, this.startDate, this.endDate, undefined, undefined, undefined, undefined, undefined, undefined, ["payments"]));
+    return result?.folios?.filter(item => item.reservation && item.payments && item.payments.some(pay => !pay.externalReference?.pspReference && !['Other', 'Voucher', 'Lunchcheck', 'Cheque'].includes(pay.method))) ?? [];
+  }
+
+  async getFoliosWithManualChargesCount() {
+    const result = await this.getFoliosWithManualChargesData();
+    return result.length;
+  }
+
+  async getFoliosWithManualChargesData() {
+    const result = await firstValueFrom(this.folioService.financeFoliosGet(this.selectedPropertiesIds, undefined, undefined, undefined, false, undefined, undefined, undefined, this.startDate, this.endDate, undefined, undefined, undefined, undefined, undefined, undefined, ["charges"]));
+    return result?.folios?.filter(item => item.charges && item.charges.some(charge => !charge.translatedNames)) ?? [];
+  }
+
+  async getFoliosWithUnusualPaymentsCount() {
+    const result = await this.getFoliosWithUnusualPaymentsData();
+    return result.length;
+  }
+
+  async getFoliosWithUnusualPaymentsData() {
+    const result = await firstValueFrom(this.folioService.financeFoliosGet(this.selectedPropertiesIds, undefined, undefined, undefined, false, undefined, undefined, undefined, this.startDate, this.endDate, undefined, undefined, undefined, undefined, undefined, undefined, ["payments"]));
+    return result?.folios?.filter(item => item.payments && item.payments.some(pay => ['Other', 'Voucher', 'Lunchcheck', 'CreditCard'].includes(pay.method))) ?? [];
   }
 
 

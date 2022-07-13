@@ -48,6 +48,7 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
         await this._fillServicesWithoutSubAccountsData();
         break;
       case StatisticType.FOLIOS_WITHOUT_PSP:
+        await this._fillFoliosWithoutPSPData();
         break;
       case StatisticType.RESERVATION_CHECKED_OUT_OPEN_BALANCE:
         await this._fillReservationsWithOpenBalanceData();
@@ -56,8 +57,10 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
         await this._fillReservationsWithoutFeeData();
         break;
       case StatisticType.FOLIOS_WITH_UNUSUAL_PAYMENTS:
+        await this._fillFoliosWithUnusualPaymentsData();
         break;
       case StatisticType.FOLIOS_WITH_MANUAL_CHARGES:
+        await this._fillFoliosWithManualChargesData();
         break;
     }
     this.isLoadingResults = false;
@@ -132,6 +135,56 @@ export class StatisticDetailsComponent implements OnInit, AfterViewInit {
         id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/${item.property.id}/reservations/${item.id}/folio">${item.id}</a>`,
         property: `${item.property.name} (${item.property.code})`,
         status: item.status
+      };
+    })
+  }
+
+  private async _fillFoliosWithoutPSPData() {
+    this.columns = [
+      {columnDef: "id", header: "Folio ID"},
+      {columnDef: "receipts", header: "Receipt/s"},
+      {columnDef: "closingDate", header: "Closing Date"},
+    ];
+    const data = await this.accountStatisticsService.getFoliosWithoutPSPData();
+    this.dataSource.data = data.map(item => {
+      return {
+        id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/reservations?textSearch=${item.reservation?.id}">${item.id}</a>`,
+        receipts: `${item.payments?.filter(item => !item.externalReference?.pspReference && !['Other', 'Voucher', 'Lunchcheck', 'Cheque'].includes(item.method))
+          .map(item => item.receipt)
+          .join('<br/>')}`,
+        closingDate: item.closingDate ? item.closingDate : '-'
+      };
+    })
+  }
+
+  private async _fillFoliosWithUnusualPaymentsData() {
+    this.columns = [
+      {columnDef: "id", header: "Folio ID"},
+      {columnDef: "paymentMethods", header: "Payment method"},
+    ];
+    const data = await this.accountStatisticsService.getFoliosWithUnusualPaymentsData();
+    this.dataSource.data = data.map(item => {
+      return {
+        id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/reservations?textSearch=${item.reservation?.id}">${item.id}</a>`,
+        paymentMethods: `${item.payments?.filter(item => ['Other', 'Voucher', 'Lunchcheck', 'CreditCard'].includes(item.method))
+          .map(item => item.method)
+          .join('<br/>')}`,
+      };
+    })
+  }
+
+  private async _fillFoliosWithManualChargesData() {
+    this.columns = [
+      {columnDef: "id", header: "Folio ID"},
+      {columnDef: "charges", header: "Charges"},
+    ];
+    const data = await this.accountStatisticsService.getFoliosWithManualChargesData();
+    this.dataSource.data = data.map(item => {
+      return {
+        id: `<a mat-button style="color: #000" target="_blank" href="https://app.apaleo.com/reservations?textSearch=${item.reservation?.id}">${item.id}</a>`,
+        charges: `${item.charges?.filter(item => !item.translatedNames)
+          .map(item => item.name)
+          .join('<br/>')}`,
       };
     })
   }
