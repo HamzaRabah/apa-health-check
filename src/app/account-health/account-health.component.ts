@@ -116,14 +116,26 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticPaymentItem);
     }
+    statisticPSPItem.isLoading = true;
     this.accountStatisticsService.getFoliosWithoutPSPCount().then(value => {
-      if (statisticPSPItem) statisticPSPItem.value = value;
+      if (statisticPSPItem) {
+        statisticPSPItem.value = value;
+        statisticPSPItem.isLoading = false;
+      }
     });
+    statisticChargesItem.isLoading = true;
     this.accountStatisticsService.getFoliosWithManualChargesCount().then(value => {
-      if (statisticChargesItem) statisticChargesItem.value = value;
+      if (statisticChargesItem) {
+        statisticChargesItem.value = value;
+        statisticChargesItem.isLoading = false;
+      }
     });
+    statisticPaymentItem.isLoading = true;
     this.accountStatisticsService.getFoliosWithUnusualPaymentsCount().then(value => {
-      if (statisticPaymentItem) statisticPaymentItem.value = value;
+      if (statisticPaymentItem) {
+        statisticPaymentItem.value = value;
+        statisticPaymentItem.isLoading = false;
+      }
     });
   }
 
@@ -140,7 +152,12 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    statisticItem.value = await this.accountStatisticsService.getReservationsWithWarningsCount();
+    try {
+      statisticItem.isLoading = true;
+      statisticItem.value = await this.accountStatisticsService.getReservationsWithWarningsCount();
+    } finally {
+      statisticItem.isLoading = false;
+    }
   }
 
   private async fillReservationsWithoutFees() {
@@ -155,7 +172,12 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    statisticItem.value = await this.accountStatisticsService.getReservationsWithoutFeeCount();
+    try {
+      statisticItem.isLoading = true;
+      statisticItem.value = await this.accountStatisticsService.getReservationsWithoutFeeCount();
+    } finally {
+      statisticItem.isLoading = false;
+    }
   }
 
   private async fillReservationsCheckedOutWithOpenBalance() {
@@ -170,7 +192,12 @@ export class AccountHealthComponent implements OnInit {
       );
       this.statisticData.push(statisticItem);
     }
-    statisticItem.value = await this.accountStatisticsService.getReservationsWithOpenBalanceCount();
+    try {
+      statisticItem.isLoading = true;
+      statisticItem.value = await this.accountStatisticsService.getReservationsWithOpenBalanceCount();
+    } finally {
+      statisticItem.isLoading = false;
+    }
   }
 
   private fillProperties() {
@@ -185,6 +212,11 @@ export class AccountHealthComponent implements OnInit {
       statisticItem = new AccountStatisticTypeModel(StatisticType.SERVICES_WITHOUT_SUB_ACCOUNTS, 'Services Without Sub-Accounts', 0, 'The services listed have no financial sub-account allocated, hence the revenues will end up in a high-level collective revenue account and reporting on this service is difficult.', 'https://apaleo.zendesk.com/hc/en-us/articles/360019336180-Sub-', 'priority_high');
       this.statisticData.push(statisticItem);
     }
-    statisticItem.value = await this.accountStatisticsService.getServicesWithoutSubAccountsCount();
+    try {
+      statisticItem.isLoading = true;
+      statisticItem.value = await this.accountStatisticsService.getServicesWithoutSubAccountsCount();
+    } finally {
+      statisticItem.isLoading = false;
+    }
   }
 }

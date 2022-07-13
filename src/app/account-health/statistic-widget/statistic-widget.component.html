@@ -1,16 +1,21 @@
 <div class="root" [matTooltip]="statisticType.description">
-  <mat-icon>{{statisticType.icon}}</mat-icon>
+  <mat-icon
+    *ngIf="!statisticType.isLoading">{{statisticType.icon}}</mat-icon>
+  <mat-spinner
+    *ngIf="statisticType.isLoading"
+    diameter="25"></mat-spinner>
   <div class="text-container">
     <div style="display: flex; align-items: center">
       <h3>{{statisticType.title}}</h3>
-      <a *ngIf="statisticType.helpGuideUrl" mat-button [href]="statisticType.helpGuideUrl" target="_blank" (click)="guideClicked()">
+      <a *ngIf="statisticType.helpGuideUrl" mat-button [href]="statisticType.helpGuideUrl" target="_blank"
+         (click)="guideClicked()">
         <mat-icon color="accent">help</mat-icon>
         Help
       </a>
     </div>
     <h2
       [ngClass]="statisticType.value > 0 ? 'warning-value' : 'valid-value'"
-      (click)="detailsClicked()">{{statisticType.value}}</h2>
+      (click)="detailsClicked()">{{ !statisticType.isLoading ? statisticType.value : '-'}}</h2>
     <h5 *ngIf="statisticType.caption">{{statisticType.caption}}</h5>
   </div>
 </div>

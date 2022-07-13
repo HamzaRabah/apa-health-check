@@ -1,4 +1,6 @@
 export class AccountStatisticTypeModel {
+  public isLoading = false;
+
   constructor(public id: StatisticType,
               public title: string,
               public value: number,
