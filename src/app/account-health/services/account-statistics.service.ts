@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {FeatureSettingsService, FolioService, ReservationService, ServiceService} from "../../../../apaleo-client";
-import {firstValueFrom, retry} from "rxjs";
+import {BehaviorSubject, firstValueFrom, retry} from "rxjs";
 import * as moment from "moment";
 
 @Injectable({
@@ -10,11 +10,46 @@ export class AccountStatisticsService {
   selectedPropertyId: string = '';
   startDate: string = '';
   endDate: string = '';
+  private _reservationsWithOpenBalanceCountSubject = new BehaviorSubject<number>(0);
+  private _reservationsWithWarningCountSubject = new BehaviorSubject<number>(0);
+  private _reservationsWithoutFeeCountSubject = new BehaviorSubject<number>(0);
+  private _servicesWithoutSubAccountsCountSubject = new BehaviorSubject<number>(0);
+  private _foliosWithoutPSPCountSubject = new BehaviorSubject<number>(0);
+  private _foliosWithManualChargesCountSubject = new BehaviorSubject<number>(0);
+  private _foliosWithUnusualPaymentsCountSubject = new BehaviorSubject<number>(0);
 
   constructor(private servicesService: ServiceService,
               private featureSettingsService: FeatureSettingsService,
               private reservationService: ReservationService,
               private folioService: FolioService) {
+  }
+
+  public get reservationsWithOpenBalanceCount() {
+    return this._reservationsWithOpenBalanceCountSubject.asObservable();
+  }
+
+  public get reservationsWithWarningCount() {
+    return this._reservationsWithWarningCountSubject.asObservable();
+  }
+
+  public get reservationsWithoutFeeCount() {
+    return this._reservationsWithoutFeeCountSubject.asObservable();
+  }
+
+  public get servicesWithoutSubAccountsCount() {
+    return this._servicesWithoutSubAccountsCountSubject.asObservable();
+  }
+
+  public get foliosWithoutPSPCount() {
+    return this._foliosWithoutPSPCountSubject.asObservable();
+  }
+
+  public get foliosWithManualChargesCount() {
+    return this._foliosWithManualChargesCountSubject.asObservable();
+  }
+
+  public get foliosWithUnusualPaymentsCount() {
+    return this._foliosWithUnusualPaymentsCountSubject.asObservable();
   }
 
   private get selectedPropertiesIds() {
@@ -27,9 +62,9 @@ export class AccountStatisticsService {
   }
 
 
-  async getReservationsWithOpenBalanceCount() {
+  async fetchReservationsWithOpenBalanceCount() {
     const result = await this.getReservationsWithOpenBalanceData();
-    return result.length;
+    this._reservationsWithOpenBalanceCountSubject.next(result.length);
   }
 
   async getReservationsWithWarningsData() {
@@ -37,9 +72,9 @@ export class AccountStatisticsService {
     return result?.reservations ?? [];
   }
 
-  async getReservationsWithWarningsCount() {
+  async fetchReservationsWithWarningsCount() {
     const result = await firstValueFrom(this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, ["OfferNotAvailable", "AutoUnitAssignment"]));
-    return result?.count ?? 0;
+    this._reservationsWithWarningCountSubject.next(result?.count ?? 0);
   }
 
   async getReservationsWithoutFeeData() {
@@ -47,14 +82,14 @@ export class AccountStatisticsService {
     return result?.reservations ?? [];
   }
 
-  async getReservationsWithoutFeeCount() {
+  async fetchReservationsWithoutFeeCount() {
     const result = await firstValueFrom(this.reservationService.bookingReservationscountGet(undefined, this.selectedPropertiesIds, undefined, undefined, undefined, undefined, undefined, undefined, ["Canceled", "NoShow"], "Creation", moment(this.startDate).format(), moment(this.endDate).format(), undefined, undefined, undefined, undefined, undefined, ["neq_0"]));
-    return result?.count ?? 0;
+    this._reservationsWithoutFeeCountSubject.next(result?.count ?? 0);
   }
 
-  async getFoliosWithoutPSPCount() {
+  async fetchFoliosWithoutPSPCount() {
     const result = await this.getFoliosWithoutPSPData();
-    return result.length;
+    this._foliosWithoutPSPCountSubject.next(result.length);
   }
 
   async getFoliosWithoutPSPData() {
@@ -62,9 +97,9 @@ export class AccountStatisticsService {
     return result?.folios?.filter(item => item.reservation && item.payments && item.payments.some(pay => !pay.externalReference?.pspReference && !['Other', 'Voucher', 'Lunchcheck', 'Cheque'].includes(pay.method))) ?? [];
   }
 
-  async getFoliosWithManualChargesCount() {
+  async fetchFoliosWithManualChargesCount() {
     const result = await this.getFoliosWithManualChargesData();
-    return result.length;
+    this._foliosWithManualChargesCountSubject.next(result.length);
   }
 
   async getFoliosWithManualChargesData() {
@@ -72,9 +107,9 @@ export class AccountStatisticsService {
     return result?.folios?.filter(item => item.charges && item.charges.some(charge => !charge.translatedNames)) ?? [];
   }
 
-  async getFoliosWithUnusualPaymentsCount() {
+  async fetchFoliosWithUnusualPaymentsCount() {
     const result = await this.getFoliosWithUnusualPaymentsData();
-    return result.length;
+    this._foliosWithUnusualPaymentsCountSubject.next(result.length);
   }
 
   async getFoliosWithUnusualPaymentsData() {
@@ -83,15 +118,16 @@ export class AccountStatisticsService {
   }
 
 
-  async getServicesWithoutSubAccountsCount() {
+  async fetchServicesWithoutSubAccountsCount() {
     if (this.selectedPropertyId) {
       const subAccountEnabled = await this._isSubAccountsEnabledInProperty(this.selectedPropertyId);
       if (!subAccountEnabled) {
-        return 0;
+        this._servicesWithoutSubAccountsCountSubject.next(0);
+        return;
       }
     }
     const servicesWithoutSubAccounts = await this.getServicesWithoutSubAccountsData();
-    return servicesWithoutSubAccounts.length;
+    this._servicesWithoutSubAccountsCountSubject.next(servicesWithoutSubAccounts.length);
   }
 
   async getServicesWithoutSubAccountsData() {
