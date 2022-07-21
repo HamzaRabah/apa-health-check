@@ -4,6 +4,7 @@ import {environment} from "../../../environments/environment";
 import * as moment from 'moment';
 import {CreateUiIntegrationModel, UiIntegrationsService} from "../../../../apaleo-integration-client";
 import {isDevMode} from '@angular/core';
+import {firstValueFrom} from "rxjs";
 
 
 @Injectable({
@@ -66,8 +67,13 @@ export class AuthService {
     sessionStorage.setItem(AuthService._authObjectKey, JSON.stringify(response));
     this._handleApaleoOneIntegration();
     this._attachRenewTokenListener();
-  }
 
+  }
+  public async getAppUrlInApaleoPMS(){
+    const result = await firstValueFrom(this._uiIntegrationsService.integrationUiIntegrationsByTargetGet("AccountMenuApps"));
+    const item = result?.uiIntegrations?.find(value => value.sourceUrl === this._accountPageURL);
+    return item ? `https://app.apaleo.com/apps/${item.id}` : 'https://app.apaleo.com/'
+  }
   private _handleApaleoOneIntegration() {
     if (isDevMode()) return;
     this._uiIntegrationsService.integrationUiIntegrationsGet("response").subscribe(result => {

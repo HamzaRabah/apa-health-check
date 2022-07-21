@@ -5,13 +5,19 @@ import {AuthService} from "../core/services/auth.service";
   selector: 'app-home', templateUrl: './home.component.html', styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  healthCheckAppUrl: string = 'https://app.apaleo.com/apps';
+  healthCheckAppUrl: string = '';
 
   constructor(public authService: AuthService) {
   }
 
   ngOnInit(): void {
-    if (!this.authService.isAuthenticated()) this.authService.login();
+    if (!this.authService.isAuthenticated()) {
+      this.authService.login();
+    } else {
+      this.authService.getAppUrlInApaleoPMS().then(value => {
+        this.healthCheckAppUrl = value;
+      })
+    }
   }
 
 }
