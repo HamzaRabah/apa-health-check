@@ -33,13 +33,13 @@ export class AuthService {
   }
 
   private static _getAccessToken(): string {
-    const authObject = sessionStorage.getItem(AuthService._authObjectKey);
+    const authObject = localStorage.getItem(AuthService._authObjectKey);
     if (!authObject) return '';
     return atob(JSON.parse(authObject ?? '').token)
   }
 
   public isAuthenticated() {
-    return !!sessionStorage.getItem(AuthService._authObjectKey);
+    return !!localStorage.getItem(AuthService._authObjectKey);
   }
 
   public login(redirectUrl = window.location.pathname) {
@@ -64,7 +64,7 @@ export class AuthService {
 
     /* Clean up csrfToken */
     localStorage.removeItem(response.csrf);
-    sessionStorage.setItem(AuthService._authObjectKey, JSON.stringify(response));
+    localStorage.setItem(AuthService._authObjectKey, JSON.stringify(response));
     this._handleApaleoOneIntegration();
     this._attachRenewTokenListener();
 
@@ -99,7 +99,7 @@ export class AuthService {
   }
 
   private _getAuthObject() {
-    const authObject = sessionStorage.getItem(AuthService._authObjectKey);
+    const authObject = localStorage.getItem(AuthService._authObjectKey);
     return authObject ? JSON.parse(authObject) : {};
   }
 
