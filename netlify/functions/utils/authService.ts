@@ -1,4 +1,4 @@
-import {AuthorizationCode, ModuleOptions} from "simple-oauth2";
+import {AccessToken, AuthorizationCode, ModuleOptions} from "simple-oauth2";
 
 export class AuthService {
   private static readonly apaleoIdentityApi = 'https://identity.apaleo.com/'
@@ -28,5 +28,12 @@ export class AuthService {
       }
     };
     return new AuthorizationCode(options);
+  }
+
+  public static createResultURL(authResult: AccessToken, redirectURL: string, csrf: string) {
+    const token = authResult.token['token']["access_token"];
+    const expiresIn = authResult.token['token']["expires_in"];
+    const expiresAt = authResult.token['token']["expires_at"];
+    return `${redirectURL}#csrf=${csrf}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}&expiresAt=${expiresAt.toUTCString()}`;
   }
 }

@@ -14,6 +14,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (!this.authService.isAuthenticated()) {
+      const accountCode = state.root.queryParamMap.get('accountCode');
+      if (accountCode != null) this.authService.setAccountCode(accountCode);
       this.authService.login(state.url);
       return false;
     }

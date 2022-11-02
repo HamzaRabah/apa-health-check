@@ -1,6 +1,7 @@
 import {Handler} from '@netlify/functions'
 import {AuthService} from "../utils/authService";
 import * as querystring from "querystring";
+import {StoreService} from "../utils/storeService";
 
 export const handler: Handler = async (event, context) => {
 
@@ -17,16 +18,15 @@ export const handler: Handler = async (event, context) => {
   /* state helps mitigate CSRF attacks & Restore the previous state of your app */
   const state = querystring.parse(event.queryStringParameters["state"] as string);
   try {
+    const accountCode = state["account_code"] as string;
     const authInstance = AuthService.authInstance();
     const config = AuthService.config();
     const result = await authInstance.getToken({
       code: code, redirect_uri: config.redirect_uri, scope: config.clientScope
     });
     const authResult = authInstance.createToken(result);
-    const token = authResult.token['token']["access_token"];
-    const expiresIn = authResult.token['token']["expires_in"];
-    const expiresAt = authResult.token['token']["expires_at"];
-    const URI = `${state["url"]}#csrf=${state["csrf"]}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}&expiresAt=${expiresAt.toUTCString()}`
+    await StoreService.set(`account:${accountCode}`, JSON.stringify(authResult));
+    const URI = AuthService.createResultURL(authResult, state["url"] as string, state["csrf"] as string);
     return {
       statusCode: 302, headers: {
         Location: URI, 'Cache-Control': 'no-cache'

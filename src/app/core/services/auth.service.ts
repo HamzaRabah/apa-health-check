@@ -13,6 +13,7 @@ import {firstValueFrom} from "rxjs";
 export class AuthService {
 
   private static readonly _authObjectKey = 'auth_result';
+  private readonly _accountCodeStorageKey = 'account_code';
   private _renewTokenHandlerId: number = Number.NaN;
   private readonly _accountPageURL = `${location.origin}/account`;
 
@@ -44,12 +45,13 @@ export class AuthService {
 
   public login(redirectUrl = window.location.pathname) {
     const state = this._generateCsrfToken();
+    const accountCode = this._getAccountCode();
     const {location, localStorage} = window
     /* Set csrf token */
     localStorage.setItem(state, 'true')
     /* Do redirect */
     const redirectTo = `${location.origin}/signin-callback?redirectTo=${redirectUrl}`
-    window.location.href = `/.netlify/functions/auth?url=${redirectTo}&csrf=${state}`
+    window.location.href = `/.netlify/functions/auth?url=${redirectTo}&csrf=${state}&account_code=${accountCode}`
   }
 
   public handleAuthCallback() {
@@ -69,11 +71,21 @@ export class AuthService {
     this._attachRenewTokenListener();
 
   }
-  public async getAppUrlInApaleoPMS(){
+
+  public async getAppUrlInApaleoPMS() {
     const result = await firstValueFrom(this._uiIntegrationsService.integrationUiIntegrationsByTargetGet("AccountMenuApps"));
     const item = result?.uiIntegrations?.find(value => value.sourceUrl === this._accountPageURL);
     return item ? `https://app.apaleo.com/apps/${item.id}` : 'https://app.apaleo.com/'
   }
+
+  public setAccountCode(accountCode: string) {
+    window.localStorage.setItem(this._accountCodeStorageKey, accountCode);
+  }
+
+  private _getAccountCode() {
+    return window.localStorage.getItem(this._accountCodeStorageKey);
+  }
+
   private _handleApaleoOneIntegration() {
     if (isDevMode()) return;
     this._uiIntegrationsService.integrationUiIntegrationsGet("response").subscribe(result => {
