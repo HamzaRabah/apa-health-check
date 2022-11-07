@@ -34,6 +34,6 @@ export class AuthService {
     const token = authResult.token['token']["access_token"];
     const expiresIn = authResult.token['token']["expires_in"];
     const expiresAt = authResult.token['token']["expires_at"];
-    return `${redirectURL}#csrf=${csrf}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}&expiresAt=${expiresAt.toUTCString()}`;
+    return `${redirectURL}#csrf=${csrf}&token=${Buffer.from(token, 'binary').toString('base64')}&expiresIn=${expiresIn}&expiresAt=${expiresAt}`;
   }
 }
