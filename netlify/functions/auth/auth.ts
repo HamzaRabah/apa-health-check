@@ -25,10 +25,13 @@ export const handler: Handler = async (event, context) => {
       }
       URI = AuthService.createResultURL(token, redirectUrl, csrfToken)
     }
-  } else {
+  }
+  if (URI.length == 0) {
     const config = AuthService.config();
     URI = AuthService.authInstance().authorizeURL({
-      redirect_uri: config.redirect_uri, scope: config.clientScope, state: `url=${redirectUrl}&csrf=${csrfToken}&account_code=${accountCode}`,
+      redirect_uri: config.redirect_uri,
+      scope: config.clientScope,
+      state: `url=${redirectUrl}&csrf=${csrfToken}&account_code=${accountCode}`,
     });
   }
 
