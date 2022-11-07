@@ -40,7 +40,11 @@ export class AuthService {
   }
 
   public isAuthenticated() {
-    return !!localStorage.getItem(AuthService._authObjectKey);
+    const authObjectJson = localStorage.getItem(AuthService._authObjectKey);
+    const authObject = JSON.parse(authObjectJson ?? '');
+    if (!authObject) return false;
+    const secondsDiff = moment(authObject.expiresAt).utc().diff(moment().utc(), "seconds");
+    return secondsDiff > 60;
   }
 
   public login(redirectUrl = window.location.pathname) {
