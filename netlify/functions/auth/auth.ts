@@ -21,14 +21,7 @@ export const handler: Handler = async (event, context) => {
     const tokenObjectJson = await StoreService.get(`account:${accountCode}`);
     if (tokenObjectJson) {
       const tokenObject = JSON.parse(tokenObjectJson);
-      console.log("tokenObject")
-      console.log(tokenObject)
-      console.log("tokenObject.token")
-      console.log(tokenObject.token)
-      console.log("tokenObjectAS")
-      console.log(tokenObject as AccessToken)
       let token = AuthService.authInstance().createToken(tokenObject);
-      console.log("token")
       if (token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
       console.log('token expired')
       console.log('refreshing token')
@@ -42,8 +35,7 @@ export const handler: Handler = async (event, context) => {
       }
       await StoreService.set(`account:${accountCode}`, JSON.stringify(token.token));
 
-      console.log('refreshing refreshed')
-      console.log(token)
+      console.log('refreshed');
       }
       URI = AuthService.createResultURL(token, redirectUrl, csrfToken)
     }
