@@ -25,7 +25,7 @@ export const handler: Handler = async (event, context) => {
       code: code, redirect_uri: config.redirect_uri, scope: config.clientScope
     });
     const authResult = authInstance.createToken(result);
-    await StoreService.set(`account:${accountCode}`, JSON.stringify(authResult));
+    await StoreService.set(`account:${accountCode}`, JSON.stringify(authResult.token));
     const URI = AuthService.createResultURL(authResult, state["url"] as string, state["csrf"] as string);
     return {
       statusCode: 302, headers: {

@@ -30,7 +30,7 @@ export const handler: Handler = async (event, context) => {
         console.log(token)
         console.log('refreshing token')
         token = await token.refresh();
-        await StoreService.set(`account:${accountCode}`, JSON.stringify(token));
+        await StoreService.set(`account:${accountCode}`, JSON.stringify(token.token));
 
         console.log('refreshing refreshed')
         console.log(token)
