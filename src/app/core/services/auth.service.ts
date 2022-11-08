@@ -41,6 +41,7 @@ export class AuthService {
 
   public isAuthenticated() {
     const authObjectJson = localStorage.getItem(AuthService._authObjectKey);
+    if(!authObjectJson || authObjectJson?.length <= 0) return false;
     const authObject = JSON.parse(authObjectJson ?? '');
     if (!authObject) return false;
     const secondsDiff = moment(authObject.expiresAt).utc().diff(moment().utc(), "seconds");
