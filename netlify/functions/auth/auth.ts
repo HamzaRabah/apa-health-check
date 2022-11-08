@@ -25,7 +25,7 @@ export const handler: Handler = async (event, context) => {
       let token = AuthService.authInstance().createToken(tokenObject);
       console.log("token")
       console.log(token)
-      if (token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
+      // if (token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
         console.log('token expired')
         console.log(token)
         console.log('refreshing token')
@@ -34,7 +34,7 @@ export const handler: Handler = async (event, context) => {
 
         console.log('refreshing refreshed')
         console.log(token)
-      }
+      // }
       URI = AuthService.createResultURL(token, redirectUrl, csrfToken)
     }
   }
