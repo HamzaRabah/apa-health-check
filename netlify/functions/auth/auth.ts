@@ -2,6 +2,7 @@ import {Handler} from '@netlify/functions'
 import {AuthService} from "../utils/authService";
 import {StoreService} from "../utils/storeService";
 
+const EXPIRATION_WINDOW_IN_SECONDS = 300; // Window of time before the actual expiration to refresh the token
 
 export const handler: Handler = async (event, context) => {
   if (!event.queryStringParameters) {
@@ -24,11 +25,11 @@ export const handler: Handler = async (event, context) => {
       let token = AuthService.authInstance().createToken(tokenObject);
       console.log("token")
       console.log(token)
-      if (token.expired()) {
+      if (token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
         console.log('token expired')
         console.log(token)
         console.log('refreshing token')
-        token = await token.refresh()
+        token = await token.refresh();
         await StoreService.set(`account:${accountCode}`, JSON.stringify(token));
 
         console.log('refreshing refreshed')
