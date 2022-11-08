@@ -1,6 +1,7 @@
 import {Handler} from '@netlify/functions'
 import {AuthService} from "../utils/authService";
 import {StoreService} from "../utils/storeService";
+import {AccessToken} from "simple-oauth2";
 
 const EXPIRATION_WINDOW_IN_SECONDS = 300; // Window of time before the actual expiration to refresh the token
 
@@ -22,7 +23,11 @@ export const handler: Handler = async (event, context) => {
       const tokenObject = JSON.parse(tokenObjectJson);
       console.log("tokenObject")
       console.log(tokenObject)
-      let token = AuthService.authInstance().createToken(tokenObject);
+      console.log("tokenObject.token")
+      console.log(tokenObject.token)
+      console.log("tokenObjectAS")
+      console.log(tokenObject as AccessToken)
+      let token = AuthService.authInstance().createToken(tokenObject.token);
       console.log("token")
       console.log(token)
       // if (token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
