@@ -21,10 +21,9 @@ export const handler: Handler = async (event, context) => {
     const accountCode = state["account_code"] as string;
     const authInstance = AuthService.authInstance();
     const config = AuthService.config();
-    const result = await authInstance.getToken({
+    const authResult = await authInstance.getToken({
       code: code, redirect_uri: config.redirect_uri, scope: config.clientScope
     });
-    const authResult = authInstance.createToken(result);
     await StoreService.set(`account:${accountCode}`, JSON.stringify(authResult.token));
     const URI = AuthService.createResultURL(authResult, state["url"] as string, state["csrf"] as string);
     return {
