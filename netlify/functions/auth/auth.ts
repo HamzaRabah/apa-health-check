@@ -19,12 +19,18 @@ export const handler: Handler = async (event, context) => {
     const tokenObjectJson = await StoreService.get(`account:${accountCode}`);
     if (tokenObjectJson) {
       const tokenObject = JSON.parse(tokenObjectJson);
+      console.log("tokenObject")
+      console.log(tokenObject)
       let token = AuthService.authInstance().createToken(tokenObject);
+      console.log("token")
+      console.log(token)
       if (token.expired()) {
         console.log('token expired')
         console.log(token)
         console.log('refreshing token')
         token = await token.refresh()
+        await StoreService.set(`account:${accountCode}`, JSON.stringify(token));
+
         console.log('refreshing refreshed')
         console.log(token)
       }
